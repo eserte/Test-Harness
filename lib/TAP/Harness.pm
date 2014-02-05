@@ -415,6 +415,8 @@ Any keys for which the value is C<undef> will be ignored.
 
         $self->jobs(1) unless defined $self->jobs;
 
+        $self->rules($self->_load_test_plan) unless defined $self->rules;
+
         local $default_class{formatter_class} = 'TAP::Formatter::File'
           unless -t ( $arg_for{stdout} || \*STDOUT ) && !$ENV{HARNESS_NOTTY};
 
@@ -444,6 +446,22 @@ Any keys for which the value is C<undef> will be ignored.
         }
 
         return $self;
+    }
+
+    sub _load_test_plan {
+        my ($plan_file) = defined($ENV{HARNESS_TESTPLAN})
+            ? $ENV{HARNESS_TESTPLAN} : grep { -r } qw(./testplan.yml t/testplan.yml);
+
+        if ( $plan_file ) {
+            require CPAN::Meta::YAML;
+            open my $fh, "<:encoding(UTF-8)", $plan_file
+                or die "Couldn't open $plan_file: $!";
+            my $yaml_text = do { local $/; <$fh> };
+            my $yaml = CPAN::Meta::YAML->read_string($yaml_text)
+                or die CPAN::Meta::YAML->errstr;
+            return $yaml->[0];
+        }
+        return;
     }
 }
 
