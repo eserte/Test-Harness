@@ -453,8 +453,12 @@ Any keys for which the value is C<undef> will be ignored.
             ? $ENV{HARNESS_TESTPLAN} : grep { -r } qw(./testplan.yml t/testplan.yml);
 
         if ( $plan_file ) {
-            require CPAN::Meta::YAML;
-            open my $fh, "<:encoding(UTF-8)", $plan_file
+            if ( ! eval { require CPAN::Meta::YAML; 1} ) {
+               warn "CPAN::Meta::YAML required to process $plan_file" ;
+               return;
+            }
+            my $layer = $] lt "5.008" ? "" : ":encoding(UTF-8)";
+            open my $fh, "<$layer", $plan_file
                 or die "Couldn't open $plan_file: $!";
             my $yaml_text = do { local $/; <$fh> };
             my $yaml = CPAN::Meta::YAML->read_string($yaml_text)
