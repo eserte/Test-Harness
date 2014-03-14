@@ -12,7 +12,7 @@ use File::Path qw/mkpath rmtree/;
 use File::Spec::Functions qw/catdir catfile rel2abs/;
 
 if ( eval { require CPAN::Meta::YAML; 1 } ) {
-    plan tests => 2;
+    plan tests => 4;
 }
 else {
     plan skip_all => "requires CPAN::Meta::YAML";
@@ -29,7 +29,7 @@ chdir $work_dir;
 # clean up at the end, but only if we didn't skip
 END { if ($initial_dir) {chdir $initial_dir; rmtree($work_dir) } }
 
-# Create test plan in t
+# Create test rules in t
 {
     open my $fh, ">", catfile($t_dir, "testrules.yml");
     print {$fh} <<'HERE';
@@ -45,7 +45,7 @@ my $exp = {
 };
 is_deeply( $th->rules, $exp, "rules set from t/testrules.yml" );
 
-# Create test plan in dist root
+# Create test rules in dist root
 {
     open my $fh, ">", catfile($work_dir, "testrules.yml");
     print {$fh} <<'HERE';
@@ -65,3 +65,29 @@ $exp = {
     ],
 };
 is_deeply( $th->rules, $exp, "root testrules.yml overrides t/testrules.yml" );
+
+# Create alternately named file
+my $altrules = catfile($work_dir, "myrules.yml");
+{
+    open my $fh, ">", $altrules;
+    print {$fh} <<'HERE';
+---
+seq: **
+HERE
+    close $fh;
+}
+
+{
+    local $ENV{HARNESS_RULESFILE} = $altrules;
+    $th = TAP::Harness->new;
+    $exp = {
+        seq => '**'
+    };
+    is_deeply( $th->rules, $exp, "HARNESS_RULESFILE overrides testrules.yml" );
+}
+
+$th = TAP::Harness->new( { rulesfile => $altrules} );
+$exp = {
+    seq => '**'
+};
+is_deeply( $th->rules, $exp, "rulesfile param overrides testrules.yml" );
