@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 use TAP::Harness::Env;
 
@@ -16,10 +16,12 @@ sub _has_module {
 
     # Should add a fake home dir? to test the rc stuff..
     local $ENV{HARNESS_OPTIONS} = 'j4:c';
+    local $ENV{HARNESS_RULESFILE} = 'myrules.yml';
 
     ok my $harness = TAP::Harness::Env->create, 'made harness';
     is( $harness->color, 1, "set color correctly" );
     is( $harness->jobs,  4, "set jobs correctly" );
+    is( $harness->rulesfile,  'myrules.yml', "set rulesfile correctly" );
 }
 SKIP: {
     skip "requires TAP::Formatter::HTML", 4

@@ -89,6 +89,7 @@ sub create {
         color       => $ENV{HARNESS_COLOR} || 0,
         verbosity   => $verbose,
         ignore_exit => $ENV{HARNESS_IGNORE_EXIT} || 0,
+        rulesfile   => $ENV{HARNESS_RULESFILE},
     );
 
     my $class = $ENV{HARNESS_SUBCLASS} || 'TAP::Harness';
