@@ -31,7 +31,7 @@ END { if ($initial_dir) {chdir $initial_dir; rmtree($work_dir) } }
 
 # Create test plan in t
 {
-    open my $fh, ">", catfile($t_dir, "testplan.yml");
+    open my $fh, ">", catfile($t_dir, "testrules.yml");
     print {$fh} <<'HERE';
 ---
 par: t/p*.t
@@ -43,11 +43,11 @@ my $th = TAP::Harness->new;
 my $exp = {
     par => 't/p*.t'
 };
-is_deeply( $th->rules, $exp, "rules set from t/testplan.yml" );
+is_deeply( $th->rules, $exp, "rules set from t/testrules.yml" );
 
 # Create test plan in dist root
 {
-    open my $fh, ">", catfile($work_dir, "testplan.yml");
+    open my $fh, ">", catfile($work_dir, "testrules.yml");
     print {$fh} <<'HERE';
 ---
 seq:
@@ -64,4 +64,4 @@ $exp = {
         { par => '**' },
     ],
 };
-is_deeply( $th->rules, $exp, "root testplan.yml overrides t/testplan.yml" );
+is_deeply( $th->rules, $exp, "root testrules.yml overrides t/testrules.yml" );

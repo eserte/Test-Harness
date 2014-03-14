@@ -329,9 +329,9 @@ run only one test at a time.
 
 A reference to a hash of rules that control which tests may be executed in
 parallel. If no rules are declared, C<TAP::Harness> attempts to load rules from
-a YAML file.  It first checks for a file given in the C<HARNESS_TESTPLAN>
-environment variable, then it checks for F<testplan.yml> and then
-F<t/testplan.yml>.  If L<CPAN::Meta::YAML> is installed, the hash reference of
+a YAML file.  It first checks for a file given in the C<HARNESS_TESTRULES>
+environment variable, then it checks for F<testrules.yml> and then
+F<t/testrules.yml>.  If L<CPAN::Meta::YAML> is installed, the hash reference of
 rules will be loaded from the test plan file.  If no test plan file exists or
 L<CPAN::Meta::YAML> is not available, the default is for all tests are eligible
 to be run in parallel.
@@ -476,8 +476,8 @@ Any keys for which the value is C<undef> will be ignored.
     }
 
     sub _load_test_plan {
-        my ($plan_file) = defined($ENV{HARNESS_TESTPLAN})
-            ? $ENV{HARNESS_TESTPLAN} : grep { -r } qw(./testplan.yml t/testplan.yml);
+        my ($plan_file) = defined($ENV{HARNESS_TESTRULES})
+            ? $ENV{HARNESS_TESTRULES} : grep { -r } qw(./testrules.yml t/testrules.yml);
 
         if ( $plan_file ) {
             if ( ! eval { require CPAN::Meta::YAML; 1} ) {
