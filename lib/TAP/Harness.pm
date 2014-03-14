@@ -328,8 +328,15 @@ run only one test at a time.
 =item * C<rules>
 
 A reference to a hash of rules that control which tests may be executed in
-parallel. If no rules are declared, all tests are eligible for being run in
-parallel. Here some simple examples. For the full details of the data structure
+parallel. If no rules are declared, C<TAP::Harness> attempts to load rules from
+a YAML file.  It first checks for a file given in the C<HARNESS_TESTPLAN>
+environment variable, then it checks for F<testplan.yml> and then
+F<t/testplan.yml>.  If L<CPAN::Meta::YAML> is installed, the hash reference of
+rules will be loaded from the test plan file.  If no test plan file exists or
+L<CPAN::Meta::YAML> is not available, the default is for all tests are eligible
+to be run in parallel.
+
+Here some simple examples. For the full details of the data structure
 and the related glob-style pattern matching, see
 L<TAP::Parser::Scheduler/"Rules data structure">.
 
@@ -338,6 +345,10 @@ L<TAP::Parser::Scheduler/"Rules data structure">.
         par => 't/p*.t'
     });
 
+    # Equivalent YAML file
+    ---
+    par: t/p*.t
+
     # Run all tests in parallel, except those starting with "p"
     $harness->rules({
         seq => [
@@ -345,6 +356,12 @@ L<TAP::Parser::Scheduler/"Rules data structure">.
                   { par => '**'     },
                ],
     });
+
+    # Equivalent YAML file
+    ---
+    seq:
+        - seq: t/p*.t
+        - par: **
 
     # Run some  startup tests in sequence, then some parallel tests than some
     # teardown tests in sequence.
@@ -356,6 +373,16 @@ L<TAP::Parser::Scheduler/"Rules data structure">.
         ],
 
     });
+
+    # Equivalent YAML file
+    ---
+    seq:
+        - seq: t/startup/*.t
+        - par:
+            - t/a/*.t
+            - t/b/*.t
+            - t/c/*.t
+        - seq: t/shutdown/*.t
 
 This is an experimental feature and the interface may change.
 
