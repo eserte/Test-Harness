@@ -58,7 +58,7 @@ BEGIN {
       really_quiet recurse backwards shuffle taint_fail taint_warn timer
       verbose warnings_fail warnings_warn show_help show_man show_version
       state_class test_args state dry extensions ignore_exit rules state_manager
-      normalize sources tapversion trap
+      normalize sources tapversion trap timeout
     );
     __PACKAGE__->mk_methods(@ATTR);
 }
@@ -252,6 +252,7 @@ sub process_args {
             'rules=s@'     => $self->{rules},
             'tapversion=s' => \$self->{tapversion},
             'trap'         => \$self->{trap},
+	    'timeout=f'    => \$self->{timeout},
         ) or croak('Unable to continue');
 
         # Stash the remainder of argv for later
@@ -386,6 +387,8 @@ sub _get_args {
         }
         $args{rules} = { par => [@rules] };
     }
+
+    $args{timeout} = $self->timeout;
 
     return ( \%args, $self->{harness_class} );
 }

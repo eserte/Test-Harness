@@ -196,7 +196,7 @@ to use to create a L<TAP::Parser::Iterator> (see L</detect_source>).  Dies on er
 =cut
 
 sub make_iterator {
-    my ( $self, $source ) = @_;
+    my ( $self, $source, $timeout ) = @_;
 
     $self->_croak('no raw source defined!') unless defined $source->raw;
 
@@ -214,7 +214,7 @@ sub make_iterator {
     return if $self->_testing;
 
     # create it
-    my $iterator = $sd_class->make_iterator($source);
+    my $iterator = $sd_class->make_iterator($source, $timeout);
 
     return $iterator;
 }

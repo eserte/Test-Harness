@@ -37,7 +37,7 @@ our $VERSION = '3.30';
 
   my $class = 'TAP::Parser::SourceHandler::Perl';
   my $vote  = $class->can_handle( $source );
-  my $iter  = $class->make_iterator( $source );
+  my $iter  = $class->make_iterator( $source, $timeout );
 
 =head1 DESCRIPTION
 
@@ -135,7 +135,7 @@ sub _autoflush_stdhandles {
 }
 
 sub make_iterator {
-    my ( $class, $source ) = @_;
+    my ( $class, $source, $timeout ) = @_;
     my $meta        = $source->meta;
     my $perl_script = ${ $source->raw };
 
@@ -148,7 +148,7 @@ sub make_iterator {
       = $class->_mangle_switches(
         $class->_filter_libs( $class->_switches($source) ) );
 
-    $class->_run( $source, $libs, $switches );
+    $class->_run( $source, $libs, $switches, $timeout );
 }
 
 
@@ -235,24 +235,25 @@ sub _iterator_hooks {
 }
 
 sub _run {
-    my ( $class, $source, $libs, $switches ) = @_;
+    my ( $class, $source, $libs, $switches, $timeout ) = @_;
 
     my @command = $class->_get_command_for_switches( $source, $switches )
       or $class->_croak("No command found!");
 
     my ( $setup, $teardown ) = $class->_iterator_hooks( $source, $libs, $switches );
 
-    return $class->_create_iterator( $source, \@command, $setup, $teardown );
+    return $class->_create_iterator( $source, \@command, $setup, $teardown, $timeout );
 }
 
 sub _create_iterator {
-    my ( $class, $source, $command, $setup, $teardown ) = @_;
+    my ( $class, $source, $command, $setup, $teardown, $timeout ) = @_;
 
     return TAP::Parser::Iterator::Process->new(
         {   command  => $command,
             merge    => $source->merge,
             setup    => $setup,
             teardown => $teardown,
+	    timeout  => $timeout,
         }
     );
 }

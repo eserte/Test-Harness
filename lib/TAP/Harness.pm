@@ -84,6 +84,7 @@ BEGIN {
         sources           => sub { shift; shift },
         version           => sub { shift; shift },
         trap              => sub { shift; shift },
+        timeout           => sub { shift; shift },
     );
 
     for my $method ( sort keys %VALIDATION_FOR ) {
@@ -739,6 +740,7 @@ sub _get_parser_args {
     $args{merge}       = $self->merge;
     $args{ignore_exit} = $self->ignore_exit;
     $args{version}     = $self->version if $self->version;
+    $args{timeout}     = $self->timeout;
 
     if ( my $exec = $self->exec ) {
         $args{exec}

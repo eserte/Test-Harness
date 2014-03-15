@@ -181,6 +181,7 @@ sub _initialize {
     $self->{pid}        = $pid;
     $self->{exit}       = undef;
     $self->{chunk_size} = $chunk_size;
+    $self->{timeout}    = $args->{timeout};
 
     if ( my $teardown = delete $args->{teardown} ) {
         $self->{teardown} = sub {
@@ -240,7 +241,22 @@ sub _next {
                 return shift @buf if @buf;
 
                 READ:
-                while ( my @ready = $sel->can_read ) {
+                while (1) {
+		    local $SIG{ALRM};
+		    if ($self->{timeout}) {
+			$SIG{ALRM} = sub { die "Timeout!" };
+			alarm $self->{timeout};
+		    }
+		    my @ready = eval { $sel->can_read };
+		    if ($self->{timeout}) {
+			alarm 0;
+		    }
+		    if ($@ && $@ =~ m{^Timeout} && defined $self->{pid}) {
+			warn "Timeout reached!";
+			kill TERM => $self->{pid};
+			return;
+		    }
+		    last if !@ready;
                     for my $fh (@ready) {
                         my $got = sysread $fh, my ($chunk), $chunk_size;
 

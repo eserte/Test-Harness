@@ -433,6 +433,7 @@ sub make_result           { shift->result_factory_class->make_result(@_); }
         my $switches    = delete $args{switches};
         my $ignore_exit = delete $args{ignore_exit};
         my $test_args   = delete $args{test_args} || [];
+	my $timeout     = delete $args{timeout};
 
         if ( 1 < grep {defined} $iterator, $tap, $raw_source, $exec ) {
             $self->_croak(
@@ -467,7 +468,7 @@ sub make_result           { shift->result_factory_class->make_result(@_); }
             my $src_factory = $self->make_iterator_factory($sources);
             $source->merge($merge)->switches($switches)
               ->test_args($test_args);
-            $iterator = $src_factory->make_iterator($source);
+            $iterator = $src_factory->make_iterator($source, $timeout);
         }
 
         unless ($iterator) {
