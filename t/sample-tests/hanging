@@ -1,0 +1,5 @@
+print "# this script will hang for a while...\n";
+print "ok 1 - before hang\n";
+sleep 60;
+print "ok 2 - after hang\n";
+print "1..2\n";
