@@ -547,7 +547,7 @@ sub _aggregate_parallel {
     my ( $self, $aggregate, $scheduler ) = @_;
 
     my $jobs = $self->jobs;
-    my $mux  = $self->_construct( $self->multiplexer_class );
+    my $mux  = $self->_construct( $self->multiplexer_class, timeout => $self->timeout );
 
     RESULT: {
 

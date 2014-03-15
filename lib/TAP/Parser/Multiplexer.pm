@@ -57,10 +57,11 @@ Returns a new C<TAP::Parser::Multiplexer> object.
 # new() implementation supplied by TAP::Object
 
 sub _initialize {
-    my $self = shift;
+    my($self, %args) = @_;
     $self->{select} = IO::Select->new;
     $self->{avid}   = [];                # Parsers that can't select
     $self->{count}  = 0;
+    $self->{timeout} = $args{timeout};
     return $self;
 }
 
@@ -132,7 +133,11 @@ sub _iter {
 
         unless (@ready) {
             return unless $sel->count;
-            @ready = $sel->can_read;
+            @ready = $sel->can_read($self->{timeout});
+	    if (!@ready && $self->{timeout}) {
+		# XXX cleanup!!!
+		return; # XXX what to return?
+	    }
         }
 
         my ( $h, $parser, $stash, @handles ) = @{ shift @ready };
