@@ -1,0 +1,16 @@
+use FindBin qw($RealBin);
+use Fcntl qw(:flock);
+use Time::HiRes qw(sleep);
+
+print STDERR "# something writing to stderr\n";
+
+sleep 0.6; # sleep so deadlock2 is the first one to get the lock
+
+my $lckfile = "$RealBin/deadlock.lck";
+open my $ofh, ">", $lckfile or die $!;
+flock $ofh, LOCK_EX or die $!;
+
+print "ok 1\n";
+print "1..1\n";
+
+unlink $lckfile;

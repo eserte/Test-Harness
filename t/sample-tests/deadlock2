@@ -1,0 +1,20 @@
+use FindBin qw($RealBin);
+use Fcntl qw(:flock);
+use Time::HiRes qw(sleep);
+
+sleep 0.3; # sleep so deadlock1 may be the first to write something
+
+my $lckfile = "$RealBin/deadlock.lck";
+open my $ofh, ">", $lckfile or die $!;
+flock $ofh, LOCK_EX or die $!;
+
+# Fill up the pipe buffer. The amount differs among OSes, and maybe
+# also OS configuration. The below writes about 80kB which is enough
+# on Debian/squeeze and FreeBSD 9.2.
+my $max = 1000;
+for my $no (1..$max) {
+    print "ok $no - a long test name xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n";
+}
+print "1..$max\n";
+
+unlink $lckfile;
