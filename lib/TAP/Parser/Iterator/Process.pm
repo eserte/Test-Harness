@@ -242,16 +242,8 @@ sub _next {
 
                 READ:
                 while (1) {
-		    local $SIG{ALRM};
-		    if ($self->{timeout}) {
-			$SIG{ALRM} = sub { die "Timeout!" };
-			alarm $self->{timeout};
-		    }
-		    my @ready = eval { $sel->can_read };
-		    if ($self->{timeout}) {
-			alarm 0;
-		    }
-		    if ($@ && $@ =~ m{^Timeout} && defined $self->{pid}) {
+		    my @ready = $sel->can_read($self->{timeout});
+		    if (!@ready && $self->{timeout}) {
 			warn "Timeout reached!";
 			kill TERM => $self->{pid};
 			return;
